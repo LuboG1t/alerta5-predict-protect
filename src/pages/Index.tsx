@@ -9,14 +9,14 @@ import { Shield, AlertTriangle, Loader2 } from 'lucide-react';
 
 const Index = () => {
   const [date, setDate] = useState('');
+  const [turno, setTurno] = useState('');
   const [zone, setZone] = useState('');
   const [sector, setSector] = useState('');
-  const [current, setCurrent] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [results, setResults] = useState<Array<{incident: string, probability: number}> | null>(null);
 
   const handleConsultar = async () => {
-    if (!date || !zone || !sector || !current) {
+    if (!date || !turno || !zone || !sector) {
       return;
     }
     
@@ -58,17 +58,8 @@ const Index = () => {
           </div>
           
           <p className="text-slate-300 text-lg leading-relaxed max-w-sm">
-            Anticipate the unexpected. Alerta5 helps you know what incidents could occur in a sector before they happen. 
-            Inform, decide, and act with data.
+            Anticípate a lo inesperado. Alerta 5 te ayuda a conocer qué incidentes podrían ocurrir en tu zona antes de que sucedan. Informa, decide y actúa con datos.
           </p>
-          
-          <div className="mt-8">
-            <img 
-              src="/lovable-uploads/90d350c1-90b0-4cf0-a9f8-630066575395.png" 
-              alt="Alerta5 System" 
-              className="max-w-full h-auto rounded-lg shadow-lg"
-            />
-          </div>
         </div>
       </div>
 
@@ -86,6 +77,21 @@ const Index = () => {
                   onChange={(e) => setDate(e.target.value)}
                   className="bg-slate-700 border-slate-600 text-white focus:border-blue-400"
                 />
+              </div>
+              
+              <div className="space-y-2">
+                <label className="text-slate-300 font-medium">Turno:</label>
+                <Select value={turno} onValueChange={setTurno}>
+                  <SelectTrigger className="bg-slate-700 border-slate-600 text-white focus:border-blue-400">
+                    <SelectValue placeholder="Seleccionar turno" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-700 border-slate-600">
+                    <SelectItem value="mañana">Mañana</SelectItem>
+                    <SelectItem value="tarde">Tarde</SelectItem>
+                    <SelectItem value="noche">Noche</SelectItem>
+                    <SelectItem value="madrugada">Madrugada</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               
               <div className="space-y-2">
@@ -118,27 +124,13 @@ const Index = () => {
                   </SelectContent>
                 </Select>
               </div>
-              
-              <div className="space-y-2">
-                <label className="text-slate-300 font-medium">Corriente:</label>
-                <Select value={current} onValueChange={setCurrent}>
-                  <SelectTrigger className="bg-slate-700 border-slate-600 text-white focus:border-blue-400">
-                    <SelectValue placeholder="Seleccionar corriente" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-slate-700 border-slate-600">
-                    <SelectItem value="alta">Alta</SelectItem>
-                    <SelectItem value="media">Media</SelectItem>
-                    <SelectItem value="baja">Baja</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
             </div>
 
             {/* Query Button */}
             <div className="flex justify-center">
               <Button
                 onClick={handleConsultar}
-                disabled={!date || !zone || !sector || !current || isLoading}
+                disabled={!date || !turno || !zone || !sector || isLoading}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg font-semibold min-w-[200px]"
               >
                 {isLoading ? (
@@ -154,13 +146,13 @@ const Index = () => {
 
             {/* Results Table */}
             {results && (
-              <div className="space-y-4 animate-fade-in">
+              <div className="space-y-4 animate-fade-in transition-all duration-500 ease-in-out">
                 <div className="flex items-center space-x-2 mb-4">
                   <AlertTriangle className="w-5 h-5 text-orange-500" />
                   <h3 className="text-xl font-semibold text-white">Incidentes más probables:</h3>
                 </div>
                 
-                <div className="bg-slate-900/50 rounded-lg overflow-hidden">
+                <div className="bg-slate-900/50 rounded-lg overflow-hidden transform transition-all duration-500 ease-in-out">
                   <table className="w-full">
                     <thead className="bg-slate-800">
                       <tr>
@@ -170,7 +162,7 @@ const Index = () => {
                     </thead>
                     <tbody>
                       {results.map((result, index) => (
-                        <tr key={index} className="border-t border-slate-700 hover:bg-slate-800/30 transition-colors">
+                        <tr key={index} className="border-t border-slate-700 hover:bg-slate-800/30 transition-colors duration-200">
                           <td className="py-4 px-6 text-white font-medium">{result.incident}</td>
                           <td className="py-4 px-6 text-right">
                             <Badge className={`${getProbabilityColor(result.probability)} text-white font-bold px-3 py-1`}>
