@@ -5,7 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Shield, AlertTriangle, Loader2 } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Shield, AlertTriangle, Loader2, MessageSquare } from 'lucide-react';
 
 const Index = () => {
   const [date, setDate] = useState('');
@@ -14,6 +15,16 @@ const Index = () => {
   const [sector, setSector] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [results, setResults] = useState<Array<{incident: string, probability: number}> | null>(null);
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [feedbackType, setFeedbackType] = useState<'coincidio' | 'no-coincidio' | null>(null);
+  const [selectedIncidents, setSelectedIncidents] = useState<string[]>([]);
+
+  // Lista completa de tipos de incidentes
+  const allIncidentTypes = [
+    'Robo', 'Accidente de tráfico', 'Vandalismo', 'Incendio', 'Agresión',
+    'Estafa', 'Violencia doméstica', 'Disturbios', 'Tráfico de drogas',
+    'Homicidio', 'Secuestro', 'Extorsión', 'Hurto', 'Violación'
+  ];
 
   const handleConsultar = async () => {
     if (!date || !turno || !zone || !sector) {
@@ -21,6 +32,9 @@ const Index = () => {
     }
     
     setIsLoading(true);
+    setShowFeedback(false);
+    setFeedbackType(null);
+    setSelectedIncidents([]);
     
     // Simulate API call with loading delay
     await new Promise(resolve => setTimeout(resolve, 2000));
@@ -36,6 +50,11 @@ const Index = () => {
     
     setResults(mockResults);
     setIsLoading(false);
+    
+    // Show feedback card after results appear
+    setTimeout(() => {
+      setShowFeedback(true);
+    }, 500);
   };
 
   const getProbabilityColor = (probability: number) => {
@@ -43,6 +62,43 @@ const Index = () => {
     if (probability >= 50) return 'bg-orange-500';
     if (probability >= 30) return 'bg-yellow-500';
     return 'bg-green-500';
+  };
+
+  const formatDate = (dateString: string) => {
+    if (!dateString) return '';
+    const [year, month, day] = dateString.split('-');
+    return `${day}/${month}/${year}`;
+  };
+
+  const handleIncidentSelection = (incident: string, checked: boolean) => {
+    if (checked) {
+      setSelectedIncidents([...selectedIncidents, incident]);
+    } else {
+      setSelectedIncidents(selectedIncidents.filter(item => item !== incident));
+    }
+  };
+
+  const handleFeedbackSubmit = () => {
+    console.log('Feedback submitted:', {
+      type: feedbackType,
+      selectedIncidents,
+      queryData: { date, turno, zone, sector }
+    });
+    // Here you would send the feedback to your backend
+    alert('¡Gracias por tu retroalimentación!');
+    setShowFeedback(false);
+    setFeedbackType(null);
+    setSelectedIncidents([]);
+  };
+
+  const getIncidentsForSelection = () => {
+    if (feedbackType === 'coincidio') {
+      return results?.map(r => r.incident) || [];
+    } else {
+      // Return incidents not in the predicted results
+      const predictedIncidents = results?.map(r => r.incident) || [];
+      return allIncidentTypes.filter(incident => !predictedIncidents.includes(incident));
+    }
   };
 
   return (
@@ -64,7 +120,7 @@ const Index = () => {
       </div>
 
       {/* Right Column - Form and Results */}
-      <div className="w-2/3 p-8 flex flex-col justify-center">
+      <div className="w-2/3 p-8 flex flex-col justify-center space-y-6">
         <Card className="bg-slate-800/50 border-slate-700 backdrop-blur-sm">
           <CardContent className="p-8 space-y-8">
             {/* Form Inputs Row */}
@@ -86,10 +142,10 @@ const Index = () => {
                     <SelectValue placeholder="Seleccionar turno" />
                   </SelectTrigger>
                   <SelectContent className="bg-slate-700 border-slate-600">
-                    <SelectItem value="mañana">Mañana</SelectItem>
-                    <SelectItem value="tarde">Tarde</SelectItem>
-                    <SelectItem value="noche">Noche</SelectItem>
-                    <SelectItem value="madrugada">Madrugada</SelectItem>
+                    <SelectItem value="Mañana">Mañana</SelectItem>
+                    <SelectItem value="Tarde">Tarde</SelectItem>
+                    <SelectItem value="Noche">Noche</SelectItem>
+                    <SelectItem value="Madrugada">Madrugada</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -101,11 +157,11 @@ const Index = () => {
                     <SelectValue placeholder="Seleccionar zona" />
                   </SelectTrigger>
                   <SelectContent className="bg-slate-700 border-slate-600">
-                    <SelectItem value="centro">Centro</SelectItem>
-                    <SelectItem value="norte">Norte</SelectItem>
-                    <SelectItem value="sur">Sur</SelectItem>
-                    <SelectItem value="este">Este</SelectItem>
-                    <SelectItem value="oeste">Oeste</SelectItem>
+                    <SelectItem value="Ayacucho">Ayacucho</SelectItem>
+                    <SelectItem value="Lima Centro">Lima Centro</SelectItem>
+                    <SelectItem value="San Juan de Lurigancho">San Juan de Lurigancho</SelectItem>
+                    <SelectItem value="Callao">Callao</SelectItem>
+                    <SelectItem value="Comas">Comas</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -117,10 +173,11 @@ const Index = () => {
                     <SelectValue placeholder="Seleccionar sector" />
                   </SelectTrigger>
                   <SelectContent className="bg-slate-700 border-slate-600">
-                    <SelectItem value="comercial">Comercial</SelectItem>
-                    <SelectItem value="residencial">Residencial</SelectItem>
-                    <SelectItem value="industrial">Industrial</SelectItem>
-                    <SelectItem value="turistico">Turístico</SelectItem>
+                    <SelectItem value="San Isidro">San Isidro</SelectItem>
+                    <SelectItem value="Miraflores">Miraflores</SelectItem>
+                    <SelectItem value="Surco">Surco</SelectItem>
+                    <SelectItem value="La Molina">La Molina</SelectItem>
+                    <SelectItem value="Barranco">Barranco</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -178,6 +235,89 @@ const Index = () => {
             )}
           </CardContent>
         </Card>
+
+        {/* Feedback Card */}
+        {showFeedback && (
+          <Card className="bg-slate-800/50 border-slate-700 backdrop-blur-sm animate-fade-in transition-all duration-500 ease-in-out">
+            <CardContent className="p-8 space-y-6">
+              <div className="flex items-center space-x-2 mb-4">
+                <MessageSquare className="w-5 h-5 text-blue-400" />
+                <h3 className="text-xl font-semibold text-white">¡Tu retroalimentación es importante!</h3>
+              </div>
+              
+              <p className="text-slate-300">
+                Por favor confirma si los resultados coinciden con los incidentes del día {formatDate(date)} en el turno {turno}, zona {zone}, sector {sector}.
+              </p>
+
+              {!feedbackType && (
+                <div className="flex space-x-4 justify-center">
+                  <Button
+                    onClick={() => setFeedbackType('coincidio')}
+                    className="bg-green-600 hover:bg-green-700 text-white px-6 py-2"
+                  >
+                    Coincidió
+                  </Button>
+                  <Button
+                    onClick={() => setFeedbackType('no-coincidio')}
+                    className="bg-red-600 hover:bg-red-700 text-white px-6 py-2"
+                  >
+                    No coincidió
+                  </Button>
+                </div>
+              )}
+
+              {feedbackType && (
+                <div className="space-y-4">
+                  <h4 className="text-lg font-medium text-white">
+                    {feedbackType === 'coincidio' 
+                      ? '¿Cuáles de estos incidentes coincidieron?' 
+                      : '¿Qué otros incidentes ocurrieron?'
+                    }
+                  </h4>
+                  
+                  <div className="grid grid-cols-2 gap-3 max-h-60 overflow-y-auto">
+                    {getIncidentsForSelection().map((incident) => (
+                      <div key={incident} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={incident}
+                          checked={selectedIncidents.includes(incident)}
+                          onCheckedChange={(checked) => handleIncidentSelection(incident, checked as boolean)}
+                          className="border-slate-400"
+                        />
+                        <label 
+                          htmlFor={incident} 
+                          className="text-slate-300 text-sm cursor-pointer hover:text-white transition-colors"
+                        >
+                          {incident}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="flex justify-center space-x-4">
+                    <Button
+                      onClick={() => {
+                        setFeedbackType(null);
+                        setSelectedIncidents([]);
+                      }}
+                      variant="outline"
+                      className="border-slate-600 text-slate-300 hover:bg-slate-700"
+                    >
+                      Cancelar
+                    </Button>
+                    <Button
+                      onClick={handleFeedbackSubmit}
+                      disabled={selectedIncidents.length === 0}
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                      Enviar
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );
