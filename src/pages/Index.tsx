@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Shield, AlertTriangle, Loader2, MessageSquare } from 'lucide-react';
+import { Shield, AlertTriangle, Loader2, MessageSquare, Calendar } from 'lucide-react';
 
 const Index = () => {
   const [date, setDate] = useState('');
@@ -122,19 +122,22 @@ const Index = () => {
 
       {/* Right Column - Form and Results (Scrollable) */}
       <div className="w-2/3 ml-[33.333333%] min-h-screen overflow-y-auto">
-        <div className="p-8 space-y-6">
+        <div className={`p-8 space-y-6 ${!results ? 'flex flex-col justify-center min-h-screen' : ''}`}>
           <Card className="bg-slate-800/50 border-slate-700 backdrop-blur-sm">
             <CardContent className="p-8 space-y-8">
               {/* Form Inputs Row */}
               <div className="grid grid-cols-4 gap-6">
                 <div className="space-y-2">
                   <label className="text-slate-300 font-medium">Fecha:</label>
-                  <Input
-                    type="date"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                    className="bg-slate-700 border-slate-600 text-white focus:border-blue-400"
-                  />
+                  <div className="relative">
+                    <Input
+                      type="date"
+                      value={date}
+                      onChange={(e) => setDate(e.target.value)}
+                      className="bg-slate-700 border-slate-600 text-white focus:border-blue-400 pr-10"
+                    />
+                    <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                  </div>
                 </div>
                 
                 <div className="space-y-2">
@@ -205,7 +208,7 @@ const Index = () => {
 
               {/* Results Table */}
               {results && (
-                <div className="space-y-4 animate-fade-in transition-all duration-500 ease-in-out">
+                <div className="space-y-4 animate-fade-in-smooth transition-all duration-500 ease-in-out">
                   <div className="flex items-center space-x-2 mb-4">
                     <AlertTriangle className="w-5 h-5 text-orange-500" />
                     <h3 className="text-xl font-semibold text-white">Incidentes más probables:</h3>
@@ -240,7 +243,7 @@ const Index = () => {
 
           {/* Feedback Card */}
           {showFeedback && (
-            <Card className="bg-slate-800/50 border-slate-700 backdrop-blur-sm animate-fade-in transition-all duration-500 ease-in-out">
+            <Card className="bg-slate-800/50 border-slate-700 backdrop-blur-sm animate-fade-in-smooth transition-all duration-500 ease-in-out">
               <CardContent className="p-8 space-y-6">
                 <div className="flex items-center space-x-2 mb-4">
                   <MessageSquare className="w-5 h-5 text-blue-400" />
